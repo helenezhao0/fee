@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>退保协退测算流程图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f2f4f7;
+    color: #1f2937;
+    line-height: 1.6;
+    padding: 16px 14px 40px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .header p {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  /* 流程竖向容器 */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .node {
+    width: 100%;
+    max-width: 460px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    position: relative;
+  }
+  .node.step {
+    border-left: 5px solid #2563eb;
+  }
+  .node.branch {
+    border-left: 5px solid #f59e0b;
+    background: #fffbeb;
+  }
+  .node.action {
+    border-left: 5px solid #10b981;
+    background: #ecfdf5;
+  }
+  .node.result {
+    border-left: 5px solid #7c3aed;
+    background: #f5f3ff;
+    text-align: center;
+  }
+  .node .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: #2563eb;
+    border-radius: 6px;
+    padding: 1px 8px;
+    margin-bottom: 6px;
+  }
+  .node.branch .tag { background: #f59e0b; }
+  .node.action .tag { background: #10b981; }
+  .node.result .tag { background: #7c3aed; }
+  .node h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+  .node h2 .arrows {
+    color: #2563eb;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .node.branch h2 .arrows,
+  .node.action h2 .arrows { color: #0f172a; }
+  .node .desc {
+    font-size: 13px;
+    color: #374151;
+  }
+  /* 子步骤列表 */
+  .substeps {
+    list-style: none;
+    margin-top: 8px;
+  }
+  .substeps li {
+    font-size: 13px;
+    color: #374151;
+    padding: 5px 0 5px 18px;
+    position: relative;
+    border-top: 1px dashed #e5e7eb;
+  }
+  .substeps li:first-child { border-top: none; }
+  .substeps li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 13px;
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+  }
+  .substeps li b { color: #0f172a; }
+  /* 分支两路 */
+  .branch-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .branch-options .opt {
+    background: #fff;
+    border: 1px solid #fcd34d;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+  }
+  .branch-options .opt span {
+    display: inline-block;
+    font-weight: 700;
+    color: #b45309;
+    margin-right: 4px;
+  }
+  /* 链接按钮 */
+  .link-btn {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    background: #2563eb;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 11px;
+    margin-top: 8px;
+    word-break: break-all;
+  }
+  .link-btn:active { background: #1d4ed8; }
+  .link-btn small {
+    display: block;
+    font-weight: 400;
+    font-size: 11px;
+    opacity: .85;
+    margin-top: 2px;
+  }
+  /* 连接箭头 */
+  .connector {
+    width: 2px;
+    height: 22px;
+    background: #cbd5e1;
+    position: relative;
+  }
+  .connector::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #cbd5e1;
+  }
+  .connector.labeled { height: 26px; }
+  .connector .clabel {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: #6b7280;
+    white-space: nowrap;
+    background: #f2f4f7;
+    padding: 0 4px;
+  }
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 24px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>退保 · 协退测算流程</h1>
+    <p>手机简易操作指引 · 三步完成</p>
+  </div>
+
+  <div class="flow">
+
+    <!-- Step 1 -->
+    <div class="node step">
+      <span class="tag">STEP 1</span>
+      <h2>看现金价值 <span class="arrows">↓↓↓</span></h2>
+      <div class="desc">先判断保单当前状态，决定是否需要试算现价。</div>
+
+      <div class="branch-options">
+        <div class="opt"><span>退保终止</span>退保金即为现价，无需试算。</div>
+        <div class="opt"><span>失效</span>需先在核心系统试算现价。</div>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- 核心系统试算 -->
+    <div class="node action">
+      <span class="tag">核心系统试算现价</span>
+      <h2>保全试算操作步骤</h2>
+      <ul class="substeps">
+        <li>核心 → <b>保全</b> → <b>保全试算</b> → <b>申请试算</b></li>
+        <li>输入<b>保单号</b>（其余项双击可自动带出）→ 点<b>确定</b></li>
+        <li>进入试算页 → 批改类型选 <b>“CT 解除合同”</b></li>
+        <li>点击<b>“添加保全项目”</b> → 选<b>客户原因</b></li>
+        <li>自动进入解除合同试算页 → 点中保单</li>
+        <li>退保原因选<b>“客户原因”</b> → 点<b>“保存”</b></li>
+      </ul>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- 结果 -->
+    <div class="node result">
+      <span class="tag">查看结果</span>
+      <div class="desc">即可看到客户<b>此刻的全额退保现价</b>。</div>
+    </div>
+
+    <div class="connector labeled"><span class="clabel">↓ 进入 step2</span></div>
+
+    <!-- Step 2 -->
+    <div class="node step">
+      <span class="tag">STEP 2</span>
+      <h2>确定该笔保单手续费 <span class="arrows">↓↓↓</span></h2>
+      <div class="desc">用测算工具算出本单应承担的手续费。</div>
+      <a class="link-btn" href="https://helenezhao0.github.io/F/service-fee" target="_blank">
+        手续费测算
+        <small>https://helenezhao0.github.io/F/service-fee</small>
+      </a>
+    </div>
+
+    <div class="connector labeled"><span class="clabel">↓ 进入 step3</span></div>
+
+    <!-- Step 3 -->
+    <div class="node step">
+      <span class="tag">STEP 3</span>
+      <h2>根据手续费测算协退 <span class="arrows">↓↓↓</span></h2>
+      <div class="desc">输入查到的<b>现价、费率</b>，<b>中邮占比70%（默认）</b>等，得出协退方案。</div>
+      <a class="link-btn" href="https://helenezhao0.github.io/zyxt1/zyxt" target="_blank">
+        协退测算小程序
+        <small>https://helenezhao0.github.io/zyxt1/zyxt</small>
+      </a>
+    </div>
+
+  </div>
+
+  <div class="footer">流程说明仅供参考，以核心系统实际显示为准</div>
+
+</body>
+</html>
